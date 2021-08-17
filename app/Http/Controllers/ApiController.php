@@ -9,16 +9,22 @@ class ApiController extends Controller
 {
     public function index()
     {
-        return Drink::all();
+        return [
+            'drinks' => Drink::all(),
+            'availableLimit' => DrinkConsumeRecord::availableLimitForToday(),
+            'records' => DrinkConsumeRecord::with('drink')
+                ->orderBy('date', 'desc')
+                ->get()
+        ];
     }
 
     public function store(Drink $drink)
     {
-        $todayLimitRemain = DrinkConsumeRecord::availableLimitForToday();
+        $avaliable = DrinkConsumeRecord::availableLimitForToday();
 
-        if ($todayLimitRemain - $drink->caffeine < 0) {
+        if ($avaliable < $drink->caffeine) {
             return response()->json([
-                'message' => "Limit hit for [{$drink->name} ({$drink->caffeine}mg)]<br>Remain: {$todayLimitRemain}mg",
+                'message' => "Limit hit for [{$drink->name} ({$drink->caffeine}mg)]<br>Remain: {$avaliable}mg",
             ], 422);
         }
 

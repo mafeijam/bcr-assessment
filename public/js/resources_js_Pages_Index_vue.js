@@ -23,7 +23,9 @@ __webpack_require__.r(__webpack_exports__);
   props: {
     drinks: Array,
     records: Array,
-    todayLimitRemain: Number
+    consumed: Number,
+    consumedCount: Array,
+    dailySummary: Array
   },
   setup: function setup(props) {
     var $q = (0,quasar__WEBPACK_IMPORTED_MODULE_3__.useQuasar)();
@@ -31,7 +33,7 @@ __webpack_require__.r(__webpack_exports__);
       return (0,_inertiajs_inertia_vue3__WEBPACK_IMPORTED_MODULE_1__.usePage)().props.value.flash;
     });
     var remain = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
-      return 500 - props.todayLimitRemain;
+      return 500 - props.consumed;
     });
     var limit = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
       return remain.value < 0 ? 0 : remain.value / 500;
@@ -77,7 +79,7 @@ __webpack_require__.r(__webpack_exports__);
     }, {
       immediate: true
     });
-    var columns = [{
+    var columnsRecord = [{
       name: 'date',
       align: 'left',
       label: 'Date',
@@ -104,7 +106,29 @@ __webpack_require__.r(__webpack_exports__);
       label: 'Action',
       sortable: false
     }];
-    var pagination = {
+    var paginationRecord = {
+      rowsPerPage: 10
+    };
+    var columnsSummary = [{
+      name: 'date',
+      align: 'left',
+      label: 'Date',
+      field: 'date',
+      sortable: true
+    }, {
+      name: 'count',
+      align: 'right',
+      label: 'Count',
+      field: 'count',
+      sortable: true
+    }, {
+      name: 'caffeine',
+      align: 'right',
+      label: 'Caffeine',
+      field: 'caffeine',
+      sortable: true
+    }];
+    var paginationSummary = {
       rowsPerPage: 10
     };
 
@@ -116,6 +140,10 @@ __webpack_require__.r(__webpack_exports__);
       return _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_2__.Inertia.delete("/drink/".concat(drink.id));
     };
 
+    var howManyMore = function howManyMore(drink) {
+      return Math.floor(remain.value / drink.caffeine);
+    };
+
     return {
       limit: limit,
       remain: remain,
@@ -123,10 +151,13 @@ __webpack_require__.r(__webpack_exports__);
       color: color,
       textColor: textColor,
       flash: flash,
-      columns: columns,
-      pagination: pagination,
+      columnsRecord: columnsRecord,
+      columnsSummary: columnsSummary,
+      paginationRecord: paginationRecord,
+      paginationSummary: paginationSummary,
       consume: consume,
-      remove: remove
+      remove: remove,
+      howManyMore: howManyMore
     };
   }
 });
@@ -174,18 +205,65 @@ var _hoisted_6 = {
   "class": "q-pa-md"
 };
 var _hoisted_7 = {
-  "class": "text-subtitle2 text-blue-grey-6"
+  "class": "flex justify-between items-baseline"
 };
 
-var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("consume");
+var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "text-body2 text-blue-grey-8"
+}, "Caffeine", -1
+/* HOISTED */
+);
 
-var _hoisted_9 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_9 = {
+  "class": "text-body1 text-blue-8 text-weight-bold"
+};
+var _hoisted_10 = {
+  "class": "flex justify-between items-baseline"
+};
+
+var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "text-body2 text-blue-grey-8"
+}, "Today consumed", -1
+/* HOISTED */
+);
+
+var _hoisted_12 = {
+  "class": "text-body1 text-blue-8 text-weight-bold"
+};
+
+var _hoisted_13 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "q-pt-md"
+}, null, -1
+/* HOISTED */
+);
+
+var _hoisted_14 = {
+  "class": "text-caption text-blue-grey-5"
+};
+
+var _hoisted_15 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("You can have ");
+
+var _hoisted_16 = {
+  "class": "text-blue-8 text-body1 text-weight-bold"
+};
+
+var _hoisted_17 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" more to stay in a safe limit");
+
+var _hoisted_18 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("consume");
+
+var _hoisted_19 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "text-h6 q-mb-sm"
 }, "Consumed Drinks", -1
 /* HOISTED */
 );
 
-var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("remove");
+var _hoisted_20 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("remove");
+
+var _hoisted_21 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "text-h6 q-mb-sm"
+}, "Daily Summary", -1
+/* HOISTED */
+);
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_q_linear_progress = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("q-linear-progress");
@@ -223,7 +301,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
           return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_page, {
             padding: "",
             style: {
-              "max-width": "1300px",
+              "max-width": "1500px",
               "margin": "auto"
             }
           }, {
@@ -270,15 +348,21 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                               "no-spinner": ""
                             }, null, 8
                             /* PROPS */
-                            , ["src", "height"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_card_section, null, {
+                            , ["src", "height"])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_card_section, {
+                              "class": "q-gutter-sm"
+                            }, {
                               "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
                                 return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
                                   "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(_ctx.$q.screen.gt.sm ? 'text-h6' : 'text-subtitle1')
                                 }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(drink.name), 3
                                 /* TEXT, CLASS */
-                                ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, "caffeine: " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(drink.caffeine) + "mg", 1
+                                ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [_hoisted_8, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(drink.caffeine) + "mg", 1
                                 /* TEXT */
-                                )];
+                                )]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [_hoisted_11, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($props.consumedCount[drink.id] || 0), 1
+                                /* TEXT */
+                                )]), _hoisted_13, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_14, [_hoisted_15, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_16, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.howManyMore(drink)), 1
+                                /* TEXT */
+                                ), _hoisted_17])];
                               }),
                               _: 2
                               /* DYNAMIC */
@@ -297,7 +381,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                   }
                                 }, {
                                   "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-                                    return [_hoisted_8];
+                                    return [_hoisted_18];
                                   }),
                                   _: 2
                                   /* DYNAMIC */
@@ -330,11 +414,11 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
 
                   }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_card_section, null, {
                     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-                      return [_hoisted_9, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_table, {
+                      return [_hoisted_19, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_table, {
                         "class": "shadow-1",
                         rows: $props.records,
-                        columns: $setup.columns,
-                        pagination: $setup.pagination,
+                        columns: $setup.columnsRecord,
+                        pagination: $setup.paginationRecord,
                         "row-key": "name",
                         dense: ""
                       }, {
@@ -357,7 +441,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
                                   return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_tooltip, null, {
                                     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-                                      return [_hoisted_10];
+                                      return [_hoisted_20];
                                     }),
                                     _: 1
                                     /* STABLE */
@@ -382,6 +466,22 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         /* STABLE */
 
                       }, 8
+                      /* PROPS */
+                      , ["rows", "columns", "pagination"])];
+                    }),
+                    _: 1
+                    /* STABLE */
+
+                  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_card_section, null, {
+                    "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+                      return [_hoisted_21, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_q_table, {
+                        "class": "shadow-1",
+                        rows: $props.dailySummary,
+                        columns: $setup.columnsSummary,
+                        pagination: $setup.paginationSummary,
+                        "row-key": "date",
+                        dense: ""
+                      }, null, 8
                       /* PROPS */
                       , ["rows", "columns", "pagination"])];
                     }),

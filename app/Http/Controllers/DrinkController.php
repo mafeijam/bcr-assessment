@@ -14,21 +14,31 @@ class DrinkController extends Controller
                     ->orderBy('date', 'desc')
                     ->get();
 
-        $todayLimitRemain = $records->where('date', date('Y-m-d'))
-                                ->groupBy('date')
-                                ->map->sum('drink.caffeine')->first();
+        $consumed = $records->where('date', date('Y-m-d'))
+                    ->groupBy('date')
+                    ->map->sum('drink.caffeine')->first();
 
-        return inertia('Index', compact('drinks', 'records', 'todayLimitRemain'));
+        $consumedCount = $records->where('date', date('Y-m-d'))
+                        ->groupBy('drink.id')
+                        ->map->count();
+
+        $dailySummary = $records->groupBy('date')->map(fn ($r, $date) => [
+            'date' => $date,
+            'count' => $r->count(),
+            'caffeine' => $r->sum('drink.caffeine')
+        ])->values();
+
+        return inertia('Index', compact('drinks', 'records', 'consumed', 'consumedCount', 'dailySummary'));
     }
 
     public function store(Drink $drink)
     {
-        $todayLimitRemain = DrinkConsumeRecord::availableLimitForToday();
+        $avaliable = DrinkConsumeRecord::availableLimitForToday();
 
-        if ($todayLimitRemain - $drink->caffeine < 0) {
+        if ($avaliable < $drink->caffeine) {
             return back()->with('flash', [
                 'title' => 'Warning',
-                'message' => "Limit hit for [{$drink->name} ({$drink->caffeine}mg)]<br>Remain: {$todayLimitRemain}mg",
+                'message' => "Limit hit for [{$drink->name} ({$drink->caffeine}mg)]<br>Remain: {$avaliable}mg",
                 'color' => 'text-pink'
             ]);
         }
